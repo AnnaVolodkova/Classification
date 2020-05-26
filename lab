@@ -1,0 +1,33 @@
+import numpy as np
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+
+data = load_breast_cancer()
+X = data['data']
+y = data['target']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+def s(x1, x2):
+    return np.sum(np.abs(x1 - x2))
+
+
+
+ss0 = np.array([[s(i[1], x) for i in enumerate(X_train) if y_train[i[0]] == 0] for x in X_test])
+ss1 = np.array([[s(i[1], x) for i in enumerate(X_train) if y_train[i[0]] == 1] for x in X_test])
+
+
+def f(_s):
+    return np.min(_s)
+
+
+fs0 = np.array([*map(f, ss0)])
+fs1 = np.array([*map(f, ss1)])
+
+
+def Pa(_x0, _x1):
+    return 0 if _x0 == min(_x0, _x1) else 1
+
+
+Pas = np.array([*map(Pa, fs0, fs1)])
+m0=np.sum(np.logical_not(np.bitwise_xor(y_test,Pas)))
+print("Fa(x_test)=",m0/len(X_test))
